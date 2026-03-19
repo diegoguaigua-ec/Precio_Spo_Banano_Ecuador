@@ -1,0 +1,116 @@
+# =============================================================================
+# Configuracion del Proyecto - Prediccion Precio Spot Banano Ecuador
+# =============================================================================
+
+# --- Rutas de datos ---
+paths:
+  colab: "/content/drive/MyDrive/PRECIO SPOT BANANO/"
+  local_data: "../data/"
+  output_dir: "./"
+  excel_files:
+    enfunde_colombia: "Enfunde_Colombia_Historico.xlsx"
+    enfunde_costa_rica: "Enfunde_Costa_Rica_Historico.xlsx"
+    enfunde_ecuador: "Enfunde_Ecuador_Historico.xlsx"
+    precios_spot: "Precios_Spot_Banano.xlsx"
+    clima: "Datos_Clima_Historico.xlsx"
+    exportaciones: "Exportacion_semanal_Ecuador.xlsx"
+
+# --- APIs externas ---
+apis:
+  fred:
+    start_date: "2020-01-01"
+    series:
+      DDFUELUSGULF: "Diesel_Gulf"
+      DCOILWTICO: "Petroleo_WTI"
+      DCOILBRENTEU: "Petroleo_Brent"
+      PCU325311325311A: "Fertilizante_Nitrogenado"
+      PCU483111483111: "PPI_Fletes_Maritimos"
+  yahoo:
+    tickers:
+      BDRY: "Indice_Fletes_BDRY"
+
+# --- Feature engineering ---
+feature_engineering:
+  predictor_lags:
+    Enfunde_Ecuador: [1, 2, 3, 4, 12]
+    Enfunde_Colombia: [2, 3, 4, 5, 8, 12]
+    Enfunde_CostaRica: [2, 4, 7, 12]
+    Temperatura: [1, 2, 12]
+    Precipitaciones: [2]
+    Radiacion_Solar: [2, 12]
+    Humedad: [1, 10]
+    Exportaciones_Ecuador: [4]
+    Diesel_Gulf: [10]
+  target_lags: [1, 2, 4, 8, 12, 52]
+  rolling_windows: [4, 8, 12]
+  top_features_count: 15
+
+# --- Modelos ---
+models:
+  xgboost_v1:
+    n_estimators: 200
+    max_depth: 5
+    learning_rate: 0.05
+    min_child_weight: 10
+    subsample: 0.7
+    colsample_bytree: 0.8
+    gamma: 0.5
+    reg_alpha: 0.5
+    reg_lambda: 3.0
+    random_state: 42
+    n_jobs: -1
+    verbosity: 0
+  xgboost_v3:
+    n_estimators: 150
+    max_depth: 3
+    learning_rate: 0.05
+    min_child_weight: 20
+    subsample: 0.7
+    colsample_bytree: 0.8
+    gamma: 1.0
+    reg_alpha: 1.5
+    reg_lambda: 8.0
+    random_state: 42
+    n_jobs: -1
+    verbosity: 0
+  lasso:
+    alpha: 0.01
+    max_iter: 10000
+  ridge:
+    alpha: 1.0
+    max_iter: 10000
+  elasticnet:
+    alpha: 0.01
+    l1_ratio: 0.8
+    max_iter: 10000
+  linear_alpha_grid: [0.01, 0.1, 1.0, 10.0, 50.0, 100.0]
+
+# --- Optuna ---
+optuna:
+  n_trials: 50
+  search_space:
+    n_estimators: [50, 200]
+    max_depth: [2, 4]
+    learning_rate: [0.01, 0.15]
+    min_child_weight: [15, 80]
+    subsample: [0.5, 0.8]
+    colsample_bytree: [0.4, 0.8]
+    gamma: [0.5, 3.0]
+    reg_alpha: [0.5, 5.0]
+    reg_lambda: [3.0, 30.0]
+
+# --- Ensemble ---
+ensemble:
+  weight_step: 0.05
+
+# --- Validacion ---
+validation:
+  walk_forward:
+    initial_train_size: 170
+    test_size: 4
+  walk_forward_v1:
+    initial_train_size: 150
+    test_size: 1
+  holdout:
+    size: 20
+  forecast_horizon: 4
