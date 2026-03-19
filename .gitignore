@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Datos (demasiado grandes para git)
+*.xlsx
+*.csv
+data/
+
+# IDE
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
